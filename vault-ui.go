@@ -21,123 +21,93 @@ import (
 )
 
 const (
-	listt string = `<!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="UTF-8">
-			<title>Mini Vault UI</title>
-		</head>
-		<body>
-			<h1>vault list {{.Location}}</h1>
-			{{$l := .Location}}
-			<table>
-				{{range .Paths}}
-					<tr>
-					<td><a href="/list/{{$l}}/{{.}}">{{.}}/</a></td><td></td>
-					</tr>
-					{{end}}
-				{{range .Secrets}}
-					<tr>
-					<td><a href="/read/{{$l}}/{{.}}">{{.}}</a></td><td>[<a href="/delete/{{$l}}/{{.}}">del</a>]</td>
-					</tr>
+	headert string = `<!DOCTYPE html><html><head>
+	<meta charset="UTF-8">
+	<title>Mini Vault UI</title>
+	</head>
+	<body>`
+	footert string = `</body></html>`
+	listt string = `{{template "header"}}
+		<h1>vault list {{.Location}}</h1>
+		{{$l := .Location}}
+		<table>
+			{{range .Paths}}
+				<tr><td><a href="/list/{{$l}}/{{.}}">{{.}}/</a></td><td></td></tr>
 			{{end}}
+			{{range .Secrets}}
+				<tr><td><a href="/read/{{$l}}/{{.}}">{{.}}</a></td><td>[<a href="/delete/{{$l}}/{{.}}">del</a>]</td></tr>
+			{{end}}
+		<tr>
+			<form action="/new/{{$l}}">
+			<td><input type="text" name="secret" size=30 value="new secret"></input></td><td><button>new</button></td>
+		</tr>
+		</form>
+		</table>
+		<br><br>[<a href="/list/{{.Up}}">back</a>] [<a href="/setting/list/{{$l}}">Settings</a>]
+		{{template "footer"}}`
+	indext string = `{{template "header"}}
+		<h1>Mini Vault UI</h1>
+		<a href="/list/secret">/list/secret</a><br>
+		[<a href="/setting/">Settings</a>]
+		{{template "footer"}}`
+	readt string = `{{template "header"}}
+		<h1>vault read {{.Location}}</h1>
+		<h2>As Key/Value</h2>
+		{{$l := .Location}}
+		<form action="/write/{{$l}}">
+		<table>
+			<tr><td>KEY</td><td>VALUE</td></tr>
+		{{range .Attr}}
 			<tr>
-				<form action="/new/{{$l}}">
-				<td><input type="text" name="secret" size=30 value="new secret"></input></td><td><button>new</button></td>
+			  <td><input type="text" name="k{{.Idx}}" size=40 value="{{.Key}}"></input></td>
+			  <td><input type="text" name="vk{{.Idx}}" size=40 value="{{.Value}}"></input></td>
 			</tr>
-			</form>
-			</table>
-			<br>
-			<br>[<a href="/list/{{.Up}}">back</a>] [<a href="/setting/list/{{$l}}">Settings</a>]<br>
-		</body>
-	</html>`
-	indext string = `<!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="UTF-8">
-			<title>Mini Vault UI</title>
-		</head>
-		<body>
-			<h1>Mini Vault UI</h1>
-			<a href="/list/secret">/list/secret</a><br>
-			[<a href="/setting/">Settings</a>]
-		</body>
-	</html>`
-	readt string = `<!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="UTF-8">
-			<title>Mini Vault UI</title>
-		</head>
-		<body>
-			<h1>vault read {{.Location}}</h1>
-			<h2>As Key/Value</h2>
-			{{$l := .Location}}
-			<form action="/write/{{$l}}">
-			<table>
-				<tr><td>KEY</td><td>VALUE</td></tr>
-			{{range .Attr}}
-				<tr>
-				  <td><input type="text" name="k{{.Idx}}" size=40 value="{{.Key}}"></input></td>
-				  <td><input type="text" name="vk{{.Idx}}" size=40 value="{{.Value}}"></input></td>
-				</tr>
-			{{end}}
-			<tr>
-			  <td><input type="text" name="k" size=40></input></td>
-			  <td><input type="text" name="vk" size=40></input></td>
-			</tr>
-			</table>
-			[<a href="/list/{{.Up}}">back</a>]  <button>write</button>
-			</form>
-			<h2>As JSON</h2>
-			<form action="/writejson/{{$l}}">
-			<textarea name="json" rows="5" cols="90">{{.JSON}}</textarea>
-			<br>
-			[<a href="/list/{{.Up}}">back</a>] <button>write json</button>
-			</form>
-		</body>
-	</html>`
-	settingt string = `<!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="UTF-8">
-			<title>Mini Vault UI</title>
-		</head>
-		<body>
-			<h1>Mini Vault UI</h1>
-			{{if .LastErr}}
-			<b>{{.LastErr}}</b><br>
-			{{end}}
-			<h2>Edit Settings</h2>
-			<form action="/set/{{.Redir}}">
-			<table>
-			<tr><td>Server URL</td><td><input type="text" name="srv" size=40 value="{{.Srv}}"></input></td></tr>
-			<tr><td>
-			<label>Login with</td><td>
-	        <select name="login">
-	          <option value="ldap">LDAP</option>
-	          <option {{if .Tok}} selected {{end}} value="token">API Token</option>
-	        </select>
-	      </label></td></tr>
-			<tr><td>Username</td><td><input type="text" name="user" size=40 value="{{.User}}"></input></td></tr>
-			<tr><td>Password</td><td><input type="password" name="pass" size=40 ></input></td></tr>
-			<tr><td>or</td><td></td></tr>
-			<tr><td>Token</td><td><input type="text" name="tok" size=40 value="{{.Tok}}"></input></td></tr>
-			</table>
-			<button>save</button>
-			</form>
-		</body>
-	</html>`
+		{{end}}
+		<tr>
+		  <td><input type="text" name="k" size=40></input></td>
+		  <td><input type="text" name="vk" size=40></input></td>
+		</tr>
+		</table>
+		[<a href="/list/{{.Up}}">back</a>]  <button>write</button>
+		</form>
+		<h2>As JSON</h2>
+		<form action="/writejson/{{$l}}">
+		<textarea name="json" rows="5" cols="90">{{.JSON}}</textarea>
+		<br>
+		[<a href="/list/{{.Up}}">back</a>] <button>write json</button>
+		</form>
+		{{template "footer"}}`
+	settingt string = `{{template "header"}}
+		<h1>Mini Vault UI</h1>
+		{{if .LastErr}}
+		<b>{{.LastErr}}</b><br>
+		{{end}}
+		<h2>Edit Settings</h2>
+		<form action="/set/{{.Redir}}">
+		<table>
+		<tr><td>Server URL</td><td><input type="text" name="srv" size=40 value="{{.Srv}}"></input></td></tr>
+		<tr><td>
+		<label>Login with</td><td>
+        <select name="login">
+          <option value="ldap">LDAP</option>
+          <option {{if .Tok}} selected {{end}} value="token">API Token</option>
+        </select>
+      </label></td></tr>
+		<tr><td>Username</td><td><input type="text" name="user" size=40 value="{{.User}}"></input></td></tr>
+		<tr><td>Password</td><td><input type="password" name="pass" size=40 ></input></td></tr>
+		<tr><td>or</td><td></td></tr>
+		<tr><td>Token</td><td><input type="text" name="tok" size=40 value="{{.Tok}}"></input></td></tr>
+		</table>
+		<button>save</button>
+		</form>
+		{{template "footer"}}`
 )
 
 var (
-	listT     = template.Must(template.New("list.html").Parse(listt))
-	indexT    = template.Must(template.New("index.html").Parse(indext))
-	readT     = template.Must(template.New("read.html").Parse(readt))
-	settingT  = template.Must(template.New("setting.html").Parse(settingt))
 	port      string
 	startPath string
 	lasterr   string = ""
+	t *template.Template
 )
 
 type (
@@ -183,6 +153,12 @@ type (
 )
 
 func main() {
+	t  = template.Must(template.New("list").Parse(listt))
+	t  =  template.Must(t.New("index").Parse(indext))
+	t  =  template.Must(t.New("read").Parse(readt))
+	t  =  template.Must(t.New("setting").Parse(settingt))
+	t  =  template.Must(t.New("header").Parse(headert))
+	t  =  template.Must(t.New("footer").Parse(footert))
 	flag.StringVar(&startPath, "s", "/list/secret/", "Start with this path (Windows only)")
 	flag.StringVar(&port, "p", "7777", "Listening port")
 	flag.Parse()
@@ -219,7 +195,7 @@ func settingHandler(w http.ResponseWriter, r *http.Request) {
 		vuser = vcookie.Value
 	}
 	myTempl := settingTempl{vsrv, vtok, vuser, lasterr, location}
-	err = settingT.Execute(w, myTempl)
+	err = t.ExecuteTemplate(w,"setting", myTempl)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -274,7 +250,6 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/setting/"+r.URL.Path, http.StatusFound)
 		return
 	}
-	//fmt.Println("cmd=", cmd, "location=", location)
 	switch cmd {
 
 	case "read":
@@ -302,7 +277,7 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 		js, _ := json.Marshal(read.Data)
 
 		myTempl := readTempl{newItem, string(js), location, upperDir(location)}
-		err = readT.Execute(w, myTempl)
+		err = t.ExecuteTemplate(w,"read", myTempl)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -375,7 +350,7 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		myTempl := listTempl{paths, secrets, location, upperDir(location), lasterr}
 
-		err = listT.Execute(w, myTempl)
+		err = t.ExecuteTemplate(w,"list", myTempl)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -409,7 +384,7 @@ func genericHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/read/"+location, http.StatusFound)
 
 	case "":
-		err = indexT.Execute(w, nil)
+		err = t.ExecuteTemplate(w,"index", nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -449,7 +424,6 @@ func vLdapLogin(srv, user, password string) (token string, dur int, err error, e
 			errtext += string(v) + "\n"
 		}
 		return "", 0, errors.New(errtext), errtext
-		//errtext = lr.Errors[0]
 	}
 	return lr.Auth.Token, lr.Auth.Dur, nil, ""
 }
