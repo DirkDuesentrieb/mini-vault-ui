@@ -24,6 +24,14 @@ const (
 	headert string = `<!DOCTYPE html><html><head>
 	<meta charset="UTF-8">
 	<title>Mini Vault UI</title>
+	<style>
+	body {font-family: sans-serif; color: #606060;}
+	table {text-align: left; border-spacing: 1px;}
+	th, td		{padding: 1px;  }
+	th {background-color: #F5C9B9;}
+	td {background-color: #f4f4f4;}
+	#button   	{background-color: #dddddd; color: #000000; text-decoration: none;}
+	</style>
 	</head>
 	<body>`
 	footert string = `</body></html>`
@@ -35,7 +43,7 @@ const (
 				<tr><td><a href="/list/{{$l}}/{{.}}">{{.}}/</a></td><td></td></tr>
 			{{end}}
 			{{range .Secrets}}
-				<tr><td><a href="/read/{{$l}}/{{.}}">{{.}}</a></td><td>[<a href="/delete/{{$l}}/{{.}}">del</a>]</td></tr>
+				<tr><td><a href="/read/{{$l}}/{{.}}">{{.}}</a></td><td><a id="button" href="/delete/{{$l}}/{{.}}">✀ del</a></td></tr>
 			{{end}}
 		<tr>
 			<form action="/new/{{$l}}">
@@ -43,12 +51,12 @@ const (
 		</tr>
 		</form>
 		</table>
-		<br><br>[<a href="/list/{{.Up}}">back</a>] [<a href="/setting/list/{{$l}}">Settings</a>]
+		<br><br><a id="button" href="/list/{{.Up}}">⇐ back</a> <a id="button" href="/setting/list/{{$l}}">Settings</a>
 		{{template "footer"}}`
 	indext string = `{{template "header"}}
 		<h1>Mini Vault UI</h1>
 		<a href="/list/secret">/list/secret</a><br>
-		[<a href="/setting/">Settings</a>]
+		<a id="button" href="/setting/">Settings</a>
 		{{template "footer"}}`
 	readt string = `{{template "header"}}
 		<h1>vault read {{.Location}}</h1>
@@ -68,13 +76,13 @@ const (
 		  <td><input type="text" name="vk" size=40></input></td>
 		</tr>
 		</table>
-		[<a href="/list/{{.Up}}">back</a>]  <button>write</button>
+		<a id="button" href="/list/{{.Up}}">⇐ back</a> <button>write</button>
 		</form>
 		<h2>As JSON</h2>
 		<form action="/writejson/{{$l}}">
 		<textarea name="json" rows="5" cols="90">{{.JSON}}</textarea>
 		<br>
-		[<a href="/list/{{.Up}}">back</a>] <button>write json</button>
+		<a id="button" href="/list/{{.Up}}">⇐ back</a> <button>write json</button>
 		</form>
 		{{template "footer"}}`
 	settingt string = `{{template "header"}}
